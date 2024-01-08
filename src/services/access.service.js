@@ -29,37 +29,26 @@ class AccessService {
             const hashPassword = await bcrypt.hash(password, 10);
             const newHolderShop = await shopModel.create({name, email, password: hashPassword, roles: [RoleShop.SHOP]})
             if (newHolderShop) {
-                // generate private-public key
-                const { privateKey, publicKey } = crypto.generateKeyPairSync('rsa', {
-                    modulusLength: 4096,
-                    publicKeyEncoding: {
-                        type: 'pkcs1',
-                        format: 'pem',
-                    },
-                    privateKeyEncoding: {
-                        type: 'pkcs1',
-                        format: 'pem',
-                    },
-                });
+                
+                const publicKey = crypto.randomBytes(64).toString('hex');
+                const privateKey = crypto.randomBytes(64).toString('hex');
+
                 console.log({ privateKey, publicKey });
                 
-                const publicKeyString = await KeyTokenService.createKeyToken({
+                const keyStore = await KeyTokenService.createKeyToken({
                     userId: newHolderShop._id,
-                    publicKey
+                    publicKey,
+                    privateKey
                 })
 
-                if (!publicKeyString) {
+                if (!keyStore) {
                     return {
                         code: 'zzzz',
-                        message: 'public key string error!'
+                        message: 'keyStore error!'
                     }
                 }
 
-                console.log('publicKeyString: ',publicKeyString);
-                const publicKeyObject = crypto.createPublicKey(publicKeyString);
-                console.log('publicKeyObject: ',publicKeyObject);
-
-                const tokens = await createTokenPair({userId: newHolderShop._id, email}, publicKeyObject, privateKey);
+                const tokens = await createTokenPair({userId: newHolderShop._id, email}, publicKey, privateKey);
                 console.log('create access tokens success!', tokens);
 
                 return {
