@@ -1,7 +1,6 @@
 'use strict';
 
 const mongoose = require('mongoose');
-const { countConnect } = require('../helpers/check.connect');
 const {database:{host,port,name}} = require('../configs/config.mongodb');
 const connectString = `mongodb://${host}:${port}/${name}`;
 console.log(connectString);
@@ -17,7 +16,7 @@ class Database {
             mongoose.set('debug', {color:true});
         }
         mongoose.connect(connectString)
-            .then( _ => console.log('Connected MongoDb Success in a properly way!', countConnect()))
+            .then( _ => console.log('Connected MongoDb Success in a properly way!'))
             .catch( err => console.log('Error connect!'));
     }
 
