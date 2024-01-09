@@ -9,7 +9,7 @@ class KeyTokenService {
                 publicKey, privateKey, refreshTokensUsed: [], refreshToken
             }, options = { upsert: true, new: true};
 
-            const tokens = keyTokenModel.findOneAndUpdate(filter,update,options);
+            const tokens = await keyTokenModel.findOneAndUpdate(filter,update,options);
 
             return tokens ? tokens.publicKey : null;
         } catch (error) {
