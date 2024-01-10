@@ -17,6 +17,10 @@ const RoleShop = {
 }
 
 class AccessService {
+    static logout = async (keyStore) => {
+        console.log('keyStore._id: ',keyStore._id);
+        return await KeyTokenService.removeById(keyStore._id);
+    }
 
     /*
         1 - check email
@@ -67,10 +71,14 @@ class AccessService {
                 const publicKey = crypto.randomBytes(64).toString('hex');
                 const privateKey = crypto.randomBytes(64).toString('hex');
                 
+
+                const tokens = await createTokenPair({userId: newHolderShop._id, email}, publicKey, privateKey);
+
                 const keyStore = await KeyTokenService.createKeyToken({
                     userId: newHolderShop._id,
                     publicKey,
-                    privateKey
+                    privateKey,
+                    refreshToken: tokens?.refreshToken
                 })
 
                 if (!keyStore) {
@@ -79,8 +87,6 @@ class AccessService {
                         message: 'keyStore error!'
                     }
                 }
-
-                const tokens = await createTokenPair({userId: newHolderShop._id, email}, publicKey, privateKey);
 
                 return {
                     code: 201,
