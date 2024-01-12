@@ -67,4 +67,4 @@ class Electronics extends Product {
     }
 }
 
-module.export = ProductFactory;
+module.exports = ProductFactory;
