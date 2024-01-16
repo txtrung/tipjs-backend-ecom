@@ -23,7 +23,52 @@ class ProductController {
                 product_shop: req.user.userId
             })
         }).send(res);
-    }
+    };
+
+    publishProductByShop = async (req,res,next) => {
+        new SuccessResponse({
+            message: 'Publish products success!',
+            metadata: await ProductServiceV2.publishProductByShop({
+                product_shop: req.user.userId,
+                product_id: req.body.product_id
+            })
+        }).send(res);
+    };
+
+    unPublishProductByShop = async (req,res,next) => {
+        new SuccessResponse({
+            message: 'Un-Publish products success!',
+            metadata: await ProductServiceV2.unPublishProductByShop({
+                product_shop: req.user.userId,
+                product_id: req.body.product_id
+            })
+        }).send(res);
+    }; 
+
+    getAllDraftsForShop = async (req,res,next) => {
+        new SuccessResponse({
+            message: 'Get draft products success!',
+            metadata: await ProductServiceV2.findAllDraftsForShop({
+                product_shop: req.user.userId
+            })
+        }).send(res);
+    };
+
+    getAllPublishedForShop = async (req,res,next) => {
+        new SuccessResponse({
+            message: 'Get published products success!',
+            metadata: await ProductServiceV2.findAllPublishedForShop({
+                product_shop: req.user.userId
+            })
+        }).send(res);
+    };
+
+    getSearchingProduct = async (req,res,next) => {
+        new SuccessResponse({
+            message: 'Get searching products success!',
+            metadata: await ProductServiceV2.searchProduct(req.params)
+        }).send(res);
+    };
 }
 
 module.exports = new ProductController();
