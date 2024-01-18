@@ -2,7 +2,8 @@
 
 const { BadRequestError } = require('../core/error.response');
 const { product, clothing, electronic, furniture } = require('../models/product.model');
-const { findAllDraftsForShop, publishProductByShop, findAllPublishedForShop,unPublishProductByShop, searchProductByUser, findAllProducts, findProduct } = require('../models/repositories/product.repo');
+const { findAllDraftsForShop, publishProductByShop, findAllPublishedForShop,unPublishProductByShop, searchProductByUser, findAllProducts, findProduct, updateProductById } = require('../models/repositories/product.repo');
+const { removeUndefinedObject, updateNestedObjectParse } = require('../utils');
 
 class ProductFactory {
     static productRegistry = {};
@@ -15,6 +16,14 @@ class ProductFactory {
             throw new BadRequestError(`Invalid product type ${type}`);
         }
         return new productClass(payload).createProduct();
+    }
+
+    static async updateProduct(type, productId, payload) {
+        const productClass = ProductFactory.productRegistry[type];
+        if (!productClass) {
+            throw new BadRequestError(`Invalid product type ${type}`);
+        }
+        return new productClass(payload).updateProduct(productId);
     }
 
     static async findAllDraftsForShop({ product_shop, limit = 50, skip = 0}) {
@@ -48,6 +57,8 @@ class ProductFactory {
     static async findProduct({product_id}) {
         return await findProduct({product_id, unSelect: ['__v']});
     }
+
+
 }
 
 class Product {
@@ -77,6 +88,10 @@ class Product {
             _id: productId
         });
     }
+
+    async updateProduct(productId, bodyUpdate) {
+        return await updateProductById({productId, bodyUpdate, model: product, isNew: true})
+    }
 }
 
 class Clothing extends Product {
@@ -91,6 +106,20 @@ class Clothing extends Product {
         if (!newProduct) throw new BadRequestError('Create new product error!');
 
         return newProduct;
+    }
+
+    async updateProduct(productId) {
+        const objectParams = removeUndefinedObject(this);
+        if (objectParams.product_attributes) {
+            await updateProductById({
+                productId, 
+                bodyUpdate: updateNestedObjectParse(objectParams.product_attributes), 
+                model: clothing, 
+                isNew: true
+            });
+        }
+        const updateProduct = await super.updateProduct(productId, updateNestedObjectParse(objectParams));
+        return updateProduct;
     }
 }
 
@@ -107,6 +136,20 @@ class Electronics extends Product {
 
         return newProduct;
     }
+
+    async updateProduct(productId) {
+        const objectParams = removeUndefinedObject(this);
+        if (objectParams.product_attributes) {
+            await updateProductById({
+                productId, 
+                bodyUpdate: updateNestedObjectParse(objectParams), 
+                model: electronic, 
+                isNew: true
+            });
+        }
+        const updateProduct = await super.updateProduct(productId, updateNestedObjectParse(objectParams));
+        return updateProduct;
+    }
 }
 
 class Furniture extends Product {
@@ -121,6 +164,20 @@ class Furniture extends Product {
         if (!newProduct) throw new BadRequestError('Create new product error!');
 
         return newProduct;
+    }
+
+    async updateProduct(productId) {
+        const objectParams = removeUndefinedObject(this);
+        if (objectParams.product_attributes) {
+            await updateProductById({
+                productId, 
+                bodyUpdate: updateNestedObjectParse(objectParams), 
+                model: furniture, 
+                isNew: true
+            });
+        }
+        const updateProduct = await super.updateProduct(productId, updateNestedObjectParse(objectParams));
+        return updateProduct;
     }
 }
 

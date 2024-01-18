@@ -17,8 +17,34 @@ const unGetSelectData = (select = []) => {
     return Object.fromEntries(select.map(sl=>[sl,0]));
 };
 
+const removeUndefinedObject = obj => {
+    Object.keys(obj).forEach(k => {
+        if (!obj[k]) {
+            delete obj[k];
+        }
+    });
+    return obj;
+};
+
+const updateNestedObjectParse = obj => {
+    const final = {};
+    Object.keys(obj).forEach( k => {
+        if (typeof obj[k] === 'object' && !Array.isArray(obj[k])) {
+            const lowestNested = updateNestedObjectParse(obj[k]);
+            Object.keys(lowestNested).forEach( d => {
+                final[`${k}.${d}`] = lowestNested[d]; 
+            })
+        } else {
+            final[k] = obj[k];
+        }
+    });
+    return final;
+}
+
 module.exports = {
     getInfoData,
     getSelectData,
-    unGetSelectData
+    unGetSelectData,
+    removeUndefinedObject,
+    updateNestedObjectParse,
 };
