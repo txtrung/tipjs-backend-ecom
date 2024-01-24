@@ -126,13 +126,11 @@ class DiscountService {
     };
 
     static async getDiscountAmount({code, userId, shopId, products}) {
-        console.log({code, userId, shopId, products});
         const foundCode = await checkDiscountExist({
                 discount_code: code,
                 discount_shopID: convertToObjectIdMongoDb(shopId)
             }
         )
-        console.log(foundCode);
         if (!foundCode) throw new BadRequestError('Discount code does not exists!');
         if (!foundCode.discount_is_active) throw new BadRequestError('Discount inactive!');
         if (foundCode.discount_used_count >= foundCode.discount_max_uses) throw new BadRequestError('Discount reach limit!');
