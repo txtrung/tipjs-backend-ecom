@@ -13,6 +13,11 @@ app.use(express.urlencoded({
     extended: true
 }))
 
+// test redis pub.sub
+// require('./tests/inventory.test');
+// const product = require('./tests/product.test');
+// product.purchaseProduct('product::19',10);
+
 // init db
 require('./dbs/init.mongodb');
 
